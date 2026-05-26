@@ -1,0 +1,32 @@
+name: Build BendMeter Windows VST3
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone JUCE 8.0.12
+        run: |
+          git clone --depth 1 --branch 8.0.12 https://github.com/juce-framework/JUCE.git C:/JUCE
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DJUCE_PATH=C:/JUCE
+
+      - name: Build
+        run: |
+          cmake --build build --config Release --target BendMeter_VST3
+
+      - name: Upload VST3
+        uses: actions/upload-artifact@v4
+        with:
+          name: BendMeter-Windows-VST3
+          path: build/BendMeter_artefacts/Release/VST3/BendMeter.vst3
